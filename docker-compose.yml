@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    container_name: ml-api
+    env_file:
+      - .env
+    volumes:
+      - ./.env:/app/.env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

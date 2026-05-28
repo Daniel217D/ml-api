@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -eu
+
+ENV_FILE="/app/.env"
+
+if [ ! -f "$ENV_FILE" ]; then
+    touch "$ENV_FILE"
+fi
+
+current_token="$(sed -n 's/^API_TOKEN=//p' "$ENV_FILE" | tail -n 1 | tr -d '"' | tr -d "'" | tr -d '[:space:]')"
+
+if [ -z "$current_token" ]; then
+    generated_token="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+
+    if grep -q '^API_TOKEN=' "$ENV_FILE"; then
+        sed -i "s|^API_TOKEN=.*|API_TOKEN=$generated_token|" "$ENV_FILE"
+    else
+        printf '\nAPI_TOKEN=%s\n' "$generated_token" >> "$ENV_FILE"
+    fi
+
+    echo "Generated API_TOKEN and saved it to $ENV_FILE"
+fi
+
+set -a
+. "$ENV_FILE"
+set +a
+
+exec uvicorn app.main:app --host 0.0.0.0 --port "${APP_PORT:-8000}"
