@@ -5,6 +5,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./app:/app/app
       - ./.env:/app/.env
     ports:
       - "${APP_PORT:-8000}:80"

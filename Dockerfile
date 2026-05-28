@@ -15,4 +15,4 @@ RUN chmod +x ./scripts/docker-entrypoint.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "./scripts/docker-entrypoint.sh"]

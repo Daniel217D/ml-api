@@ -29,4 +29,16 @@ set -a
 . "$ENV_FILE"
 set +a
 
+APP_ENV="${APP_ENV:-prod}"
+
+if [ "$APP_ENV" = "dev" ]; then
+    echo "Starting server in dev mode with auto-reload"
+    exec uvicorn app.main:app \
+        --host 0.0.0.0 \
+        --port 80 \
+        --reload \
+        --reload-dir /app/app
+fi
+
+echo "Starting server in prod mode"
 exec uvicorn app.main:app --host 0.0.0.0 --port 80
