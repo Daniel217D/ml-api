@@ -38,7 +38,7 @@ if [ "$APP_ENV" = "dev" ]; then
         --port 80 \
         --reload \
         --reload-dir /app/app
+else
+    echo "Starting server in prod mode"
+    exec uvicorn app.main:app --host 0.0.0.0 --port 80
 fi
-
-echo "Starting server in prod mode"
-exec uvicorn app.main:app --host 0.0.0.0 --port 80
