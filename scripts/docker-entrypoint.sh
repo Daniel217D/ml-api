@@ -14,7 +14,10 @@ if [ -z "$current_token" ]; then
     generated_token="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
 
     if grep -q '^API_TOKEN=' "$ENV_FILE"; then
-        sed -i "s|^API_TOKEN=.*|API_TOKEN=$generated_token|" "$ENV_FILE"
+        temp_file="$(mktemp)"
+        sed "s|^API_TOKEN=.*|API_TOKEN=$generated_token|" "$ENV_FILE" > "$temp_file"
+        cat "$temp_file" > "$ENV_FILE"
+        rm -f "$temp_file"
     else
         printf '\nAPI_TOKEN=%s\n' "$generated_token" >> "$ENV_FILE"
     fi
@@ -26,4 +29,4 @@ set -a
 . "$ENV_FILE"
 set +a
 
-exec uvicorn app.main:app --host 0.0.0.0 --port "${APP_PORT:-8000}"
+exec uvicorn app.main:app --host 0.0.0.0 --port 80
