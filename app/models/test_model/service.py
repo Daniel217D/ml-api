@@ -5,6 +5,3 @@ class TestModelService:
         if not model_input.strip():
             return "test output"
         return "test output"
-
-
-test_model_service = TestModelService()

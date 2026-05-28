@@ -1,3 +1,1 @@
-from app.models.test_model.router import router
-
-__all__ = ["router"]
+# Package marker for the test model module.

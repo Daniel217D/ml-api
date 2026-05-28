@@ -2,14 +2,28 @@ from fastapi import Depends, FastAPI
 
 from app.auth import verify_api_token
 from app.common.responses import HealthResponse
-from app.config import Settings
-from app.models.test_model.router import router as test_model_router
+from app.container import Container
+from app.models import discover_routers
 
-settings = Settings()
-app = FastAPI(title=settings.app_name, dependencies=[Depends(verify_api_token)])
 
-app.include_router(test_model_router)
+def create_app() -> FastAPI:
+    container = Container()
+    settings = container.settings()
 
-@app.get("/health", response_model=HealthResponse)
-def healthcheck() -> HealthResponse:
-    return HealthResponse(status="ok")
+    app = FastAPI(
+        title=settings.app_name,
+        dependencies=[Depends(verify_api_token)],
+    )
+    app.container = container
+
+    for router in discover_routers():
+        app.include_router(router)
+
+    @app.get("/health", response_model=HealthResponse)
+    def healthcheck() -> HealthResponse:
+        return HealthResponse(status="ok")
+
+    return app
+
+
+app = create_app()
