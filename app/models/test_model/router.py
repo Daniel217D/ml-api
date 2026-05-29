@@ -13,8 +13,8 @@ from app.models.test_model.schemas import (
 
 router = APIRouter(prefix="/models/test-model", tags=["test model"])
 
-@inject
 @router.post("/predict", response_model=TestModelPredictResponse)
+@inject
 def predict(
     payload: TestModelPredictRequest,
     service: Annotated[
