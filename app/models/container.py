@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
-from app.models.test_model.container import TestModelContainer
+from app.models.iris.container import ModelContainer
 
 
 class ModelsContainer(containers.DeclarativeContainer):
-    test_model = providers.Container(TestModelContainer)
+    test_model = providers.Container(ModelContainer)

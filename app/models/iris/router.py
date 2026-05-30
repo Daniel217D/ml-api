@@ -5,26 +5,26 @@ from fastapi import APIRouter, Depends
 
 from app.container import Container
 from app.common.errors import internal_server_error
-from app.models.test_model.service import TestModelService
-from app.models.test_model.schemas import (
-    TestModelPredictRequest,
-    TestModelPredictResponse,
+from app.models.iris.service import ModelService
+from app.models.iris.schemas import (
+    ModelPredictRequest,
+    ModelPredictResponse,
 )
 
-router = APIRouter(prefix="/models/test-model", tags=["test model"])
+router = APIRouter(prefix="/models/iris", tags=["iris model"])
 
-@router.post("/predict", response_model=TestModelPredictResponse)
+@router.post("/predict", response_model=ModelPredictResponse)
 @inject
 def predict(
-    payload: TestModelPredictRequest,
+    payload: ModelPredictRequest,
     service: Annotated[
-        TestModelService,
-        Depends(Provide[Container.models.test_model.service]),
+        ModelService,
+        Depends(Provide[Container.models.iris_dataset.service]),
     ],
-) -> TestModelPredictResponse:
+) -> ModelPredictResponse:
     try:
         prediction = service.predict(payload.input)
-        return TestModelPredictResponse(
+        return ModelPredictResponse(
             model=service.model_name,
             result=prediction,
         )
