@@ -2,30 +2,19 @@ import asyncio
 import json
 import os
 
-import joblib
-import pandas as pd
 from redis.asyncio import Redis
 
-from features import decode_predictions
+from service import calculate_result
+from worker_logging import configure_logging, log_model_io
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 TASKS_QUEUE = os.getenv("TASKS_QUEUE", "tasks:iris")
 RESULT_PREFIX = "task_result:"
-MODEL_PATH = os.getenv("MODEL_PATH", "model.joblib")
-
-
-artifact_loaded = joblib.load(MODEL_PATH)
-MODEL = artifact_loaded["model"] if isinstance(artifact_loaded, dict) else artifact_loaded
-
-
-def calculate_result(features: dict[str, list[float]]) -> list[str]:
-    df = pd.DataFrame(features)
-    predictions = MODEL.predict(df).tolist()
-    return decode_predictions(predictions)
 
 
 async def process_tasks() -> None:
     redis = Redis.from_url(REDIS_URL, decode_responses=True)
+    logger = configure_logging()
 
     try:
         while True:
@@ -45,6 +34,7 @@ async def process_tasks() -> None:
                     "result": str(exc),
                 }
 
+            log_model_io(logger, task_id, features, payload)
             await redis.set(f"{RESULT_PREFIX}{task_id}", json.dumps(payload))
     finally:
         await redis.aclose()
