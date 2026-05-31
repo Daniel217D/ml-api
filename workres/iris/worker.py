@@ -5,7 +5,7 @@ import os
 from redis.asyncio import Redis
 
 from service import calculate_result
-from worker_logging import configure_logging, log_model_io
+from worker_logging import configure_logging, log_model_error, log_model_success
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 TASKS_QUEUE = os.getenv("TASKS_QUEUE", "tasks:iris")
@@ -28,13 +28,13 @@ async def process_tasks() -> None:
                     "status": "done",
                     "result": result,
                 }
+                log_model_success(logger, task_id, features, payload)
             except Exception as exc:
                 payload = {
                     "status": "error",
                     "result": str(exc),
                 }
-
-            log_model_io(logger, task_id, features, payload)
+                log_model_error(logger, task_id, features, payload)
             await redis.set(f"{RESULT_PREFIX}{task_id}", json.dumps(payload))
     finally:
         await redis.aclose()

@@ -33,7 +33,11 @@ def _truncate_value(value: str) -> str:
     return f"{value[:MAX_LOG_BODY_LENGTH]}...<truncated>"
 
 
-def log_model_io(
+def _serialize_payload(value: dict[str, Any]) -> str:
+    return _truncate_value(json.dumps(value, ensure_ascii=True))
+
+
+def log_model_success(
     logger: logging.Logger,
     task_id: str,
     features: dict[str, list[float]],
@@ -42,6 +46,21 @@ def log_model_io(
     logger.info(
         "task_id=%s model_input=%s model_output=%s",
         task_id,
-        _truncate_value(json.dumps(features, ensure_ascii=True)),
-        _truncate_value(json.dumps(payload, ensure_ascii=True)),
+        _serialize_payload(features),
+        _serialize_payload(payload),
+    )
+
+
+def log_model_error(
+    logger: logging.Logger,
+    task_id: str,
+    features: dict[str, list[float]],
+    payload: dict[str, Any],
+) -> None:
+    logger.error(
+        "task_id=%s model_input=%s model_output=%s",
+        task_id,
+        _serialize_payload(features),
+        _serialize_payload(payload),
+        exc_info=True,
     )
