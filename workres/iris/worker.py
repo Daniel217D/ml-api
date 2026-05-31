@@ -33,9 +33,19 @@ async def process_tasks() -> None:
             task = json.loads(raw_task)
             task_id = task["task_id"]
             features = task["features"]
-            result = calculate_result(features)
+            try:
+                result = calculate_result(features)
+                payload = {
+                    "status": "done",
+                    "result": result,
+                }
+            except Exception as exc:
+                payload = {
+                    "status": "error",
+                    "result": str(exc),
+                }
 
-            await redis.set(f"{RESULT_PREFIX}{task_id}", json.dumps(result))
+            await redis.set(f"{RESULT_PREFIX}{task_id}", json.dumps(payload))
     finally:
         await redis.aclose()
 

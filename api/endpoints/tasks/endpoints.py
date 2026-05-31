@@ -23,8 +23,10 @@ async def get_task(
     if result is None:
         return TaskStatusResponse(task_id=task_id, status="processing")
 
+    payload = json.loads(result)
+
     return TaskStatusResponse(
         task_id=task_id,
-        status="done",
-        result=json.loads(result),
+        status=payload["status"],
+        result=payload.get("result"),
     )
