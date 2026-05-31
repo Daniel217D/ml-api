@@ -1,8 +1,8 @@
 services:
   iris:
     build:
-      context: ../..
-      dockerfile: workres/iris/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: iris
     env_file:
       - ../../.env
