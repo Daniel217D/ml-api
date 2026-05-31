@@ -1,10 +1,12 @@
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
-from redis.asyncio import Redis
 
 from api.auth import verify_api_token
 from api.container import Container
+from api.endpoints.health import endpoints as health_endpoints
+from api.endpoints.tasks import endpoints as tasks_endpoints
+from api.endpoints.tasks_double import endpoints as tasks_double_endpoints
 from api.endpoints.health.endpoints import router as health_router
 from api.endpoints.tasks.endpoints import router as tasks_router
 from api.endpoints.tasks_double.endpoints import router as tasks_double_router
@@ -15,12 +17,11 @@ def create_app() -> FastAPI:
     settings = container.settings()
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        app.state.redis = Redis.from_url(settings.redis_url, decode_responses=True)
+    async def lifespan(_: FastAPI):
         try:
             yield
         finally:
-            await app.state.redis.aclose()
+            await container.redis().aclose()
 
     app = FastAPI(
         title=settings.app_name,
@@ -29,6 +30,13 @@ def create_app() -> FastAPI:
     )
 
     app.container = container
+    container.wire(
+        modules=[
+            health_endpoints,
+            tasks_endpoints,
+            tasks_double_endpoints,
+        ],
+    )
 
     app.openapi_version = "3.0.3"
     app.include_router(health_router)
