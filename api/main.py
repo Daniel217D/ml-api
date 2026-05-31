@@ -1,20 +1,35 @@
+from importlib import import_module
+from pkgutil import iter_modules
 from contextlib import asynccontextmanager
+from types import ModuleType
 
 from fastapi import Depends, FastAPI
 
 from api.auth import verify_api_token
 from api.container import Container
-from api.endpoints.health import endpoints as health_endpoints
-from api.endpoints.tasks import endpoints as tasks_endpoints
-from api.endpoints.tasks_double import endpoints as tasks_double_endpoints
-from api.endpoints.health.endpoints import router as health_router
-from api.endpoints.tasks.endpoints import router as tasks_router
-from api.endpoints.tasks_double.endpoints import router as tasks_double_router
+from api import auth
+from api import endpoints as endpoints_package
+
+
+def discover_endpoint_modules() -> list[ModuleType]:
+    modules: list[ModuleType] = []
+
+    for module_info in sorted(
+        iter_modules(endpoints_package.__path__),
+        key=lambda item: item.name,
+    ):
+        if not module_info.ispkg:
+            continue
+
+        modules.append(import_module(f"api.endpoints.{module_info.name}.endpoints"))
+
+    return modules
 
 
 def create_app() -> FastAPI:
     container = Container()
     settings = container.settings()
+    endpoint_modules = discover_endpoint_modules()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -30,18 +45,11 @@ def create_app() -> FastAPI:
     )
 
     app.container = container
-    container.wire(
-        modules=[
-            health_endpoints,
-            tasks_endpoints,
-            tasks_double_endpoints,
-        ],
-    )
+    container.wire(modules=[auth, *endpoint_modules])
 
     app.openapi_version = "3.0.3"
-    app.include_router(health_router)
-    app.include_router(tasks_double_router)
-    app.include_router(tasks_router)
+    for endpoint_module in endpoint_modules:
+        app.include_router(endpoint_module.router)
 
     return app
 
