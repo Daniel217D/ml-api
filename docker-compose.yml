@@ -1,12 +1,2 @@
-services:
-  api:
-    build: .
-    container_name: ml-api
-    env_file:
-      - .env
-    volumes:
-      - ./app:/app/app
-      - ./.env:/app/.env
-    ports:
-      - "${APP_PORT:-8000}:80"
-    restart: unless-stopped
+include:
+  - ./api/compose.yml

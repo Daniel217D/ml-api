@@ -1,14 +1,11 @@
 from dependency_injector import containers, providers
 
-from app.config import Settings
-from app.models.container import ModelsContainer
+from api.config import Settings
 
 
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
-        packages=["app.models"],
-        modules=["app.auth"],
+        modules=["api.auth"],
     )
 
     settings = providers.Singleton(Settings)
-    models = providers.Container(ModelsContainer)

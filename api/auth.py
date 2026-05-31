@@ -4,9 +4,9 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.container import Container
-from app.common.errors import unauthorized_error
-from app.config import Settings
+from api.container import Container
+from api.common.errors import unauthorized_error
+from api.config import Settings
 
 bearer_scheme = HTTPBearer(auto_error=False)
 

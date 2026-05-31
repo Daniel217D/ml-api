@@ -2,10 +2,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
 
-from app.auth import verify_api_token
-from app.common.responses import HealthResponse
-from app.container import Container
-from app.models import discover_routers
+from api.auth import verify_api_token
+from api.common.responses import HealthResponse
+from api.container import Container
 
 
 def create_app() -> FastAPI:
@@ -14,7 +13,6 @@ def create_app() -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
-        container.models.iris.service()
         yield
 
     app = FastAPI(
@@ -23,9 +21,6 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     app.container = container
-
-    for router in discover_routers():
-        app.include_router(router)
 
     @app.get("/health", response_model=HealthResponse)
     def healthcheck() -> HealthResponse:
