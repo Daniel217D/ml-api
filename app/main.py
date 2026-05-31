@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import Depends, FastAPI
 
 from app.auth import verify_api_token
@@ -10,9 +12,15 @@ def create_app() -> FastAPI:
     container = Container()
     settings = container.settings()
 
+    @asynccontextmanager
+    async def lifespan(_: FastAPI):
+        container.models.iris.service()
+        yield
+
     app = FastAPI(
         title=settings.app_name,
         dependencies=[Depends(verify_api_token)],
+        lifespan=lifespan,
     )
     app.container = container
 

@@ -19,11 +19,16 @@ def predict(
     payload: ModelPredictRequest,
     service: Annotated[
         ModelService,
-        Depends(Provide[Container.models.iris_dataset.service]),
+        Depends(Provide[Container.models.iris.service]),
     ],
 ) -> ModelPredictResponse:
     try:
-        prediction = service.predict(payload.input)
+        prediction = service.predict(
+            sepal_length_cm=payload.sepal_length_cm,
+            sepal_width_cm=payload.sepal_width_cm,
+            petal_length_cm=payload.petal_length_cm,
+            petal_width_cm=payload.petal_width_cm,
+        )
         return ModelPredictResponse(
             model=service.model_name,
             result=prediction,

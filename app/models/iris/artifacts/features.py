@@ -8,3 +8,11 @@ def make_areas(df):
 
 def areas_feature_names_out(self, input_features):
     return ['sepal_area', 'petal_area']
+
+def decode_predictions(predictions: list[int]) -> list[str]:
+    values = ['setosa', 'versicolor', 'virginica']
+
+    return[
+        values[x]
+        for x in predictions
+    ]

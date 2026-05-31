@@ -2,7 +2,10 @@ from pydantic import BaseModel, Field
 
 
 class ModelPredictRequest(BaseModel):
-    input: str = Field(..., min_length=1, examples=["test input"])
+    sepal_length_cm: float = Field(..., gt=0, examples=[5.1])
+    sepal_width_cm: float = Field(..., gt=0, examples=[3.5])
+    petal_length_cm: float = Field(..., gt=0, examples=[1.4])
+    petal_width_cm: float = Field(..., gt=0, examples=[0.2])
 
 class ModelPredictResponse(BaseModel):
     model: str
