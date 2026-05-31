@@ -25,6 +25,6 @@ async def create_iris_task(
         "task_id": task_id,
         "features": payload.model_dump(by_alias=True),
     }
-    print('AAA', redis)
+
     await redis.rpush(IRIS_QUEUE, json.dumps(task))
     return TaskQueuedResponse(task_id=task_id, status="queued")

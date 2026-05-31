@@ -6,6 +6,7 @@ from types import ModuleType
 from fastapi import Depends, FastAPI
 
 from api.auth import verify_api_token
+from api.common.logging import add_request_logging_middleware
 from api.container import Container
 from api import auth
 from api import endpoints as endpoints_package
@@ -43,6 +44,8 @@ def create_app() -> FastAPI:
         dependencies=[Depends(verify_api_token)],
         lifespan=lifespan,
     )
+
+    add_request_logging_middleware(app)
 
     app.container = container
     container.wire(modules=[auth, *endpoint_modules])
