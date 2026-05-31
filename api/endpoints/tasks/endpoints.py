@@ -13,8 +13,8 @@ RESULT_PREFIX = "task_result:"
 router = APIRouter()
 
 
-@inject
 @router.get("/tasks/{task_id}", response_model=TaskStatusResponse)
+@inject
 async def get_task(
     task_id: str,
     redis: Annotated[Redis, Depends(Provide[Container.redis])],
