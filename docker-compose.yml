@@ -1,6 +1,6 @@
 include:
   - ./api/compose.yml
-  - ./workres/worker1/compose.yml
+  - ./workres/iris/compose.yml
 
 services:
   redis:

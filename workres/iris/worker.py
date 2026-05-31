@@ -5,7 +5,7 @@ import os
 from redis.asyncio import Redis
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
-TASKS_QUEUE = os.getenv("TASKS_QUEUE", "tasks:double")
+TASKS_QUEUE = os.getenv("TASKS_QUEUE", "tasks:iris")
 RESULT_PREFIX = "task_result:"
 
 
