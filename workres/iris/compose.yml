@@ -1,0 +1,16 @@
+services:
+  iris:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iris
+    env_file:
+      - ../../.env
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      TASKS_QUEUE: tasks:iris
+      WORKER_NAME: iris
+      OPERATION_NAME: iris
+    depends_on:
+      - redis
+    restart: unless-stopped
