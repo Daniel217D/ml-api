@@ -10,6 +10,7 @@ from worker_logging import configure_logging, log_model_error, log_model_success
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 TASKS_QUEUE = os.getenv("TASKS_QUEUE", "tasks:iris")
 RESULT_PREFIX = "task_result:"
+RESULT_TTL = int(os.getenv("RESULT_TTL", "60"))
 
 
 async def process_tasks() -> None:
@@ -22,6 +23,7 @@ async def process_tasks() -> None:
             task = json.loads(raw_task)
             task_id = task["task_id"]
             features = task["features"]
+            result_key = task.get("result_key", f"{RESULT_PREFIX}{task_id}")
             try:
                 result = calculate_result(features)
                 payload = {
@@ -35,7 +37,8 @@ async def process_tasks() -> None:
                     "result": str(exc),
                 }
                 log_model_error(logger, task_id, features, payload)
-            await redis.set(f"{RESULT_PREFIX}{task_id}", json.dumps(payload))
+            await redis.rpush(result_key, json.dumps(payload))
+            await redis.expire(result_key, RESULT_TTL)
     finally:
         await redis.aclose()
 

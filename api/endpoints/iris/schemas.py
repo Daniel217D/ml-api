@@ -1,3 +1,5 @@
+from typing import Any, Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -32,15 +34,17 @@ class IrisFeaturesRequest(BaseModel):
     )
 
 
-class TaskQueuedResponse(BaseModel):
+class IrisResultResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "task_id": "58b26df9-4ccb-4e3f-9fa4-fda5c4e3a52c",
-                "status": "queued",
+                "status": "done",
+                "result": ["setosa", "virginica"],
             }
         }
     )
 
     task_id: str
-    status: str
+    status: Literal["done", "error"]
+    result: Any = None
