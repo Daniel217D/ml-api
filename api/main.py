@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from types import ModuleType
 
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth import verify_api_token
 from api.common.logging import add_request_logging_middleware
@@ -46,6 +47,15 @@ def create_app() -> FastAPI:
     )
 
     add_request_logging_middleware(app)
+
+    cors_origins = [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins or ["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     app.container = container
     container.wire(modules=[auth, *endpoint_modules])
